@@ -1,3 +1,4 @@
+README read only in code not preview, its a directory structure.
 Starter working structure of the project (may change): 
 
 PiPet/
