@@ -13,9 +13,9 @@ class AdoptionScreen:
         self.input = input_handler
         self.ai_handler = ai_handler
 
-        # Load pet preview images (although we won't display them)
-        self.pet_images = {}
-        self.load_pet_images()
+        # Load pet preview images (currently not in use)
+        # self.pet_images = {}
+        # self.load_pet_images()
 
         # Define the allowed pet types for offline mode
         self.offline_pet_types = ["Cat", "Rat", "Raccoon"]
@@ -96,20 +96,20 @@ class AdoptionScreen:
         # Title text
         self.title_text = "Choose Your Pet"
         
-    def load_pet_images(self):
-        """Load pet preview images"""
-        for pet_type in PET_TYPES:
-            image_path = f"{PETS_PATH}/{pet_type}Tami.png"
-            try:
-                image = pygame.image.load(image_path).convert_alpha()
-                image = pygame.transform.scale(image, (30, 30))  # Smaller preview
-                self.pet_images[pet_type] = image
-            except Exception as e:
-                print(f"Error loading pet image {image_path}: {e}")
-                # Create a placeholder
-                image = pygame.Surface((30, 30))
-                image.fill(GRAY)
-                self.pet_images[pet_type] = image
+    # def load_pet_images(self):
+    #     """Load pet preview images"""
+    #     for pet_type in PET_TYPES:
+    #         image_path = f"{PETS_PATH}/{pet_type}Tami.png"
+    #         try:
+    #             image = pygame.image.load(image_path).convert_alpha()
+    #             image = pygame.transform.scale(image, (30, 30))  # Smaller preview
+    #             self.pet_images[pet_type] = image
+    #         except Exception as e:
+    #             print(f"Error loading pet image {image_path}: {e}")
+    #             # Create a placeholder
+    #             image = pygame.Surface((30, 30))
+    #             image.fill(GRAY)
+    #             self.pet_images[pet_type] = image
                 
     def update(self):
         """Update the adoption screen"""
