@@ -15,7 +15,7 @@ from src.constants import *
 from src.display import Display
 from src.input import InputHandler
 from src.ai_integration import AIHandler
-from src.config import Config
+from config import Config
 from src.pet import Pet
 from src.screens import ScreenType
 from src.screens.adoption import AdoptionScreen
