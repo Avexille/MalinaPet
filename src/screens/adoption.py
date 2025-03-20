@@ -12,75 +12,71 @@ class AdoptionScreen:
         self.display = display
         self.input = input_handler
         self.ai_handler = ai_handler
-        
+
         # Load pet preview images
         self.pet_images = {}
         self.load_pet_images()
-        
-        # Button positions and sizes
+
+        # Button positions and sizes - based on wireframe specs
         self.button_width = 50
         self.button_height = 20
         self.ai_button_width = 118
         self.ai_button_height = 20
-        
-        # Calculate button positions
-        self.screen_center_x = self.display.width // 2
-        self.screen_center_y = self.display.height // 2
-        
-        # The number of standard pet buttons
-        self.num_pet_buttons = len(PET_TYPES) + 1  # +1 for random
-        
-        # The standard buttons are arranged in rows
+
+        # Adjust for small screen
+        screen_padding = 10  # Padding from screen edges
+
+        # Calculate button positions - 2 columns layout
         self.buttons_per_row = 2
-        self.num_rows = (self.num_pet_buttons + self.buttons_per_row - 1) // self.buttons_per_row
-        
-        # Calculate the total height needed for all buttons
-        total_button_height = self.num_rows * self.button_height + (self.num_rows - 1) * 5  # 5px spacing
-        if self.ai_handler.is_available:
-            total_button_height += self.ai_button_height + 5  # Add AI button height
-            
-        # Start Y position for the first row of buttons
-        self.start_y = self.screen_center_y - total_button_height // 2
-        
+        button_spacing_x = 10  # Horizontal spacing between buttons
+        button_spacing_y = 10  # Vertical spacing between buttons
+
+        # Calculate total width needed for buttons in a row
+        total_row_width = (self.button_width * self.buttons_per_row) + (button_spacing_x * (self.buttons_per_row - 1))
+
+        # Calculate starting position to center the buttons
+        start_x = (self.display.width - total_row_width) // 2
+        start_y = 40  # Start below the title
+
         # Define button positions and data
         self.buttons = []
-        
-        # Add pet type buttons
+
+        # Add pet type buttons - 2 columns with proper spacing
         for i, pet_type in enumerate(PET_TYPES):
             row = i // self.buttons_per_row
             col = i % self.buttons_per_row
-            
-            x = self.screen_center_x - self.button_width - 5 + col * (self.button_width + 10)
-            y = self.start_y + row * (self.button_height + 5)
-            
+
+            x = start_x + col * (self.button_width + button_spacing_x)
+            y = start_y + row * (self.button_height + button_spacing_y)
+
             self.buttons.append({
                 "rect": pygame.Rect(x, y, self.button_width, self.button_height),
                 "text": pet_type,
                 "type": pet_type,
                 "ai": False
             })
-            
+
         # Add random pet button
-        row = len(PET_TYPES) // self.buttons_per_row
-        col = len(PET_TYPES) % self.buttons_per_row
-        
-        x = self.screen_center_x - self.button_width - 5 + col * (self.button_width + 10)
-        y = self.start_y + row * (self.button_height + 5)
-        
+        random_row = len(PET_TYPES) // self.buttons_per_row
+        random_col = len(PET_TYPES) % self.buttons_per_row
+
+        random_x = start_x + random_col * (self.button_width + button_spacing_x)
+        random_y = start_y + random_row * (self.button_height + button_spacing_y)
+
         self.buttons.append({
-            "rect": pygame.Rect(x, y, self.button_width, self.button_height),
+            "rect": pygame.Rect(random_x, random_y, self.button_width, self.button_height),
             "text": "?",
             "type": "random",
             "ai": False
         })
-        
-        # Add AI generated pet button if available
+
+        # Add AI generated pet button at the bottom if available
         if self.ai_handler.is_available:
-            ai_button_y = self.start_y + self.num_rows * (self.button_height + 5)
+            ai_y = start_y + (random_row + 1) * (self.button_height + button_spacing_y)
             self.buttons.append({
                 "rect": pygame.Rect(
-                    self.screen_center_x - self.ai_button_width // 2,
-                    ai_button_y,
+                    (self.display.width - self.ai_button_width) // 2,  # Center horizontally
+                    ai_y,
                     self.ai_button_width,
                     self.ai_button_height
                 ),
@@ -88,10 +84,10 @@ class AdoptionScreen:
                 "type": "ai",
                 "ai": True
             })
-            
+
         # Selected button
         self.selected_button_index = 0
-        
+
         # Title text
         self.title_text = "Choose Your Pet"
         
@@ -142,46 +138,39 @@ class AdoptionScreen:
             return (ScreenType.MAIN, pet)
             
         return None
-        
+
     def draw(self):
         """Draw the adoption screen"""
         # Clear the screen
         self.display.clear()
-        
+
         # Draw title
         title_surface = self.display.render_text(self.title_text, WHITE)
         title_x = (self.display.width - title_surface.get_width()) // 2
         self.display.screen.blit(title_surface, (title_x, 10))
-        
+
         # Draw buttons
         for i, button in enumerate(self.buttons):
             # Draw button background
             color = BLUE if i == self.selected_button_index else DARK_GRAY
             pygame.draw.rect(self.display.screen, color, button["rect"])
-            
+
             # Draw button border
             border_color = WHITE if i == self.selected_button_index else LIGHT_GRAY
             pygame.draw.rect(self.display.screen, border_color, button["rect"], 1)
-            
+
             # Draw button text
             text_surface = self.display.render_text(button["text"], WHITE, self.display.small_font)
             text_x = button["rect"].x + (button["rect"].width - text_surface.get_width()) // 2
             text_y = button["rect"].y + (button["rect"].height - text_surface.get_height()) // 2
             self.display.screen.blit(text_surface, (text_x, text_y))
-            
-            # Draw pet image for pet type buttons (except random and AI)
-            if button["type"] not in ["random", "ai"] and button["type"] in self.pet_images:
-                image = self.pet_images[button["type"]]
-                image_x = button["rect"].x + (button["rect"].width - image.get_width()) // 2
-                image_y = button["rect"].y - image.get_height() - 5
-                self.display.screen.blit(image, (image_x, image_y))
-        
-        # Show instructions at the bottom
+
+        # Show instructions at the bottom - ensure it fits on screen
         instructions = "Use joystick to select, press to adopt"
         instruction_surface = self.display.render_text(instructions, WHITE, self.display.small_font)
         instruction_x = (self.display.width - instruction_surface.get_width()) // 2
-        instruction_y = self.display.height - instruction_surface.get_height() - 5
+        instruction_y = self.display.height - instruction_surface.get_height() - 2  # Move closer to bottom
         self.display.screen.blit(instruction_surface, (instruction_x, instruction_y))
-        
+
         # Update the display
         self.display.update()
