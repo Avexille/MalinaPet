@@ -13,36 +13,36 @@ class AdoptionScreen:
         self.input = input_handler
         self.ai_handler = ai_handler
 
-        # Load pet preview images
+        # Load pet preview images (although we won't display them)
         self.pet_images = {}
         self.load_pet_images()
 
-        # Button positions and sizes - based on wireframe specs
-        self.button_width = 50
-        self.button_height = 20
+        # Define the allowed pet types for offline mode
+        self.offline_pet_types = ["Cat", "Rat", "Raccoon"]
+
+        # Button positions and sizes - larger buttons
+        self.button_width = 70
+        self.button_height = 25
         self.ai_button_width = 118
         self.ai_button_height = 20
-
-        # Adjust for small screen
-        screen_padding = 10  # Padding from screen edges
 
         # Calculate button positions - 2 columns layout
         self.buttons_per_row = 2
         button_spacing_x = 10  # Horizontal spacing between buttons
-        button_spacing_y = 10  # Vertical spacing between buttons
+        button_spacing_y = 15  # Vertical spacing between buttons
 
         # Calculate total width needed for buttons in a row
         total_row_width = (self.button_width * self.buttons_per_row) + (button_spacing_x * (self.buttons_per_row - 1))
 
         # Calculate starting position to center the buttons
         start_x = (self.display.width - total_row_width) // 2
-        start_y = 40  # Start below the title
+        start_y = 35  # Start below the title
 
-        # Define button positions and data
+        # Define button positions and data - only for offline pet types
         self.buttons = []
 
-        # Add pet type buttons - 2 columns with proper spacing
-        for i, pet_type in enumerate(PET_TYPES):
+        # Add pet type buttons - only Cat, Rat, Raccoon
+        for i, pet_type in enumerate(self.offline_pet_types):
             row = i // self.buttons_per_row
             col = i % self.buttons_per_row
 
@@ -57,10 +57,8 @@ class AdoptionScreen:
             })
 
         # Add random pet button
-        random_row = len(PET_TYPES) // self.buttons_per_row
-        random_col = len(PET_TYPES) % self.buttons_per_row
-
-        random_x = start_x + random_col * (self.button_width + button_spacing_x)
+        random_row = (len(self.offline_pet_types) + 1) // self.buttons_per_row
+        random_x = (self.display.width - self.button_width) // 2  # Center the ? button
         random_y = start_y + random_row * (self.button_height + button_spacing_y)
 
         self.buttons.append({
@@ -70,9 +68,9 @@ class AdoptionScreen:
             "ai": False
         })
 
-        # Add AI generated pet button at the bottom if available
+        # Add AI generated pet button at the bottom if available (for online mode)
         if self.ai_handler.is_available:
-            ai_y = start_y + (random_row + 1) * (self.button_height + button_spacing_y)
+            ai_y = random_y + self.button_height + button_spacing_y
             self.buttons.append({
                 "rect": pygame.Rect(
                     (self.display.width - self.ai_button_width) // 2,  # Center horizontally
@@ -165,12 +163,22 @@ class AdoptionScreen:
             text_y = button["rect"].y + (button["rect"].height - text_surface.get_height()) // 2
             self.display.screen.blit(text_surface, (text_x, text_y))
 
-        # Show instructions at the bottom - ensure it fits on screen
-        instructions = "Use joystick to select, press to adopt"
-        instruction_surface = self.display.render_text(instructions, WHITE, self.display.small_font)
-        instruction_x = (self.display.width - instruction_surface.get_width()) // 2
-        instruction_y = self.display.height - instruction_surface.get_height() - 2  # Move closer to bottom
-        self.display.screen.blit(instruction_surface, (instruction_x, instruction_y))
+        # Show instructions at the bottom - break into two lines for better visibility
+        line1 = "Use joystick to select"
+        line2 = "press to adopt"
+
+        line1_surface = self.display.render_text(line1, WHITE, self.display.small_font)
+        line2_surface = self.display.render_text(line2, WHITE, self.display.small_font)
+
+        line1_x = (self.display.width - line1_surface.get_width()) // 2
+        line2_x = (self.display.width - line2_surface.get_width()) // 2
+
+        # Position near bottom but leave enough space
+        line1_y = self.display.height - line1_surface.get_height() - line2_surface.get_height() - 4
+        line2_y = self.display.height - line2_surface.get_height() - 2
+
+        self.display.screen.blit(line1_surface, (line1_x, line1_y))
+        self.display.screen.blit(line2_surface, (line2_x, line2_y))
 
         # Update the display
         self.display.update()
