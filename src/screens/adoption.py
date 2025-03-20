@@ -21,12 +21,12 @@ class AdoptionScreen:
         self.offline_pet_types = ["Cat", "Rat", "Raccoon"]
 
         # Button positions and sizes - larger buttons
-        self.button_width = 70
-        self.button_height = 25
+        self.button_width = 75  # Slightly wider to fit "Raccoon"
+        self.button_height = 30  # Taller buttons for better visibility
         self.ai_button_width = 118
         self.ai_button_height = 20
 
-        # Calculate button positions - 2 columns layout
+        # Calculate button positions - 2x2 grid layout
         self.buttons_per_row = 2
         button_spacing_x = 10  # Horizontal spacing between buttons
         button_spacing_y = 15  # Vertical spacing between buttons
@@ -36,33 +36,40 @@ class AdoptionScreen:
 
         # Calculate starting position to center the buttons
         start_x = (self.display.width - total_row_width) // 2
-        start_y = 35  # Start below the title
+        start_y = 45  # Add more space below the title
 
-        # Define button positions and data - only for offline pet types
+        # Define button positions and data - only for offline pet types plus random
         self.buttons = []
 
-        # Add pet type buttons - only Cat, Rat, Raccoon
-        for i, pet_type in enumerate(self.offline_pet_types):
-            row = i // self.buttons_per_row
-            col = i % self.buttons_per_row
-
-            x = start_x + col * (self.button_width + button_spacing_x)
-            y = start_y + row * (self.button_height + button_spacing_y)
-
-            self.buttons.append({
-                "rect": pygame.Rect(x, y, self.button_width, self.button_height),
-                "text": pet_type,
-                "type": pet_type,
-                "ai": False
-            })
-
-        # Add random pet button
-        random_row = (len(self.offline_pet_types) + 1) // self.buttons_per_row
-        random_x = (self.display.width - self.button_width) // 2  # Center the ? button
-        random_y = start_y + random_row * (self.button_height + button_spacing_y)
+        # Add Cat and Rat buttons (first row)
+        self.buttons.append({
+            "rect": pygame.Rect(start_x, start_y, self.button_width, self.button_height),
+            "text": "Cat",
+            "type": "Cat",
+            "ai": False
+        })
 
         self.buttons.append({
-            "rect": pygame.Rect(random_x, random_y, self.button_width, self.button_height),
+            "rect": pygame.Rect(start_x + self.button_width + button_spacing_x, start_y,
+                                self.button_width, self.button_height),
+            "text": "Rat",
+            "type": "Rat",
+            "ai": False
+        })
+
+        # Add Raccoon and ? buttons (second row)
+        self.buttons.append({
+            "rect": pygame.Rect(start_x, start_y + self.button_height + button_spacing_y,
+                                self.button_width, self.button_height),
+            "text": "Raccoon",
+            "type": "Raccoon",
+            "ai": False
+        })
+
+        self.buttons.append({
+            "rect": pygame.Rect(start_x + self.button_width + button_spacing_x,
+                                start_y + self.button_height + button_spacing_y,
+                                self.button_width, self.button_height),
             "text": "?",
             "type": "random",
             "ai": False
@@ -70,7 +77,7 @@ class AdoptionScreen:
 
         # Add AI generated pet button at the bottom if available (for online mode)
         if self.ai_handler.is_available:
-            ai_y = random_y + self.button_height + button_spacing_y
+            ai_y = start_y + (self.button_height + button_spacing_y) * 2 + 10
             self.buttons.append({
                 "rect": pygame.Rect(
                     (self.display.width - self.ai_button_width) // 2,  # Center horizontally
