@@ -68,14 +68,26 @@ class StatsScreen:
         stats = self.pet.get_stats()
 
         # Calculate positions
-        stat_name_x = 10
-        stat_bar_x = 50  # Start bars further to the right
+        bar_width = 70  # Increased bar width
+        bar_height = 12  # Slightly taller bar
+
+        # Determine the maximum width of stat name labels for centering
+        stat_labels = []
+        for stat_name in stats.keys():
+            display_name = "Happy" if stat_name == "Happiness" else stat_name
+            stat_labels.append(f"{display_name}:")
+
+        # Render stat names and get their widths
+        max_label_width = max(
+            self.display.render_text(label, WHITE, self.display.small_font).get_width()
+            for label in stat_labels
+        )
+
+        # Calculate starting positions
+        stat_name_x = (self.width - (max_label_width + 10 + bar_width)) // 2
+        stat_bar_x = stat_name_x + max_label_width + 10
         stat_bar_y_start = 45
         stat_bar_spacing = 15
-
-        # Increase stat bar size
-        bar_width = 70  # Increased from default
-        bar_height = 12  # Slightly taller
 
         for i, (stat_name, stat_value) in enumerate(stats.items()):
             # Shorten "Happiness" if it doesn't fit
