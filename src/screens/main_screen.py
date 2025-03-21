@@ -141,24 +141,29 @@ class MainScreen:
         if not self.pet.is_alive():
             return (ScreenType.GAME_OVER, None)
 
-        # Handle joystick input
+        # Update conversation status and arrow visibility
+        self.show_up_arrow = self.pet.needs_conversation
+
+        # Handle joystick input for navigation
         if self.input.is_pressed("left"):
-            # Go to stats screen
-            return (ScreenType.STATS, None)
+            # Check if we need to go to stats screen or navigate icons
+            if self.active_icon_index == 0:
+                # When on far left icon, pressing left again goes to stats
+                return (ScreenType.STATS, None)
+            else:
+                # Otherwise, move to previous icon
+                self.active_icon_index = (self.active_icon_index - 1) % self.regular_icons
 
-        if self.input.is_pressed("up") and self.show_up_arrow:
-            # Go to conversation screen if happiness is low enough
-            if self.pet.stats[STAT_HAPPINESS] < self.conversation_threshold:
-                return (ScreenType.CONVERSATION, None)
-
-        # Navigate between toolbar icons
-        if self.input.is_pressed("right"):
+        elif self.input.is_pressed("right"):
             # Move to next icon
             self.active_icon_index = (self.active_icon_index + 1) % self.regular_icons
 
-        if self.input.is_pressed("left"):
-            # Move to previous icon
-            self.active_icon_index = (self.active_icon_index - 1) % self.regular_icons
+        # Special handling for conversation
+        elif self.input.is_pressed("up"):
+            # Only go to conversation if the pet needs it
+            if self.pet.needs_conversation:
+                print("Going to conversation screen")  # Debug print
+                return (ScreenType.CONVERSATION, None)
 
         # Handle icon activation
         if self.input.is_pressed("press") or self.input.is_pressed("key1"):
@@ -174,12 +179,6 @@ class MainScreen:
                 self.pet.clean()
             elif self.active_icon_index == 3:  # Heal
                 self.pet.heal()
-
-        # Update conversation need status based on happiness
-        self.pet.needs_conversation = self.pet.stats[STAT_HAPPINESS] < self.conversation_threshold
-
-        # Update arrow visibility
-        self.show_up_arrow = self.pet.needs_conversation
 
         return None
 

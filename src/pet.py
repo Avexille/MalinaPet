@@ -84,6 +84,10 @@ class Pet:
         self.needs_feeding = self.stats[STAT_HUNGER] < 30
         self.needs_healing = self.stats[STAT_HEALTH] < 30
 
+        # Also set needs_conversation based on happiness (in addition to timer)
+        if self.stats[STAT_HAPPINESS] < 80:
+            self.needs_conversation = True
+
         # If health drops to zero, pet dies
         if self.stats[STAT_HEALTH] <= 0:
             self.state = STATE_DEAD
