@@ -22,10 +22,10 @@ FPS = 30
 STATS_DECREASE_INTERVAL = 60  # seconds between stat decreases
 
 # Pet constants
-PET_SIZE = (50, 50)  # Pet image size
-MESS_SIZE = (15, 15)  # Mess image size
-ICON_SIZE = (18, 18)  # Menu icon size
-ARROW_SIZE = (10, 10)  # Direction arrow size
+PET_SIZE = (64, 64)  # Pet image size
+MESS_SIZE = (25, 25)  # Mess image size
+ICON_SIZE = (30, 30)  # Menu icon size
+ARROW_SIZE = (20, 20)  # Direction arrow size
 STAT_BAR_SIZE = (50, 10)  # Size of the stat bars
 
 # Button GPIO pins (for Waveshare 1.44inch LCD HAT)
