@@ -65,7 +65,7 @@ class ConversationScreen:
             return (ScreenType.MAIN, None)
 
         # Check if conversation should time out
-        if time.time() - self.start_time > 10:  # 10 seconds timeout
+        if time.time() - self.start_time > 30:  # 30 seconds timeout for enough time to read the message
             return (ScreenType.MAIN, None)
 
         return None
