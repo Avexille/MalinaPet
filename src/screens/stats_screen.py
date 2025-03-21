@@ -50,15 +50,15 @@ class StatsScreen:
         # Clear the screen
         self.display.clear()
 
-        # Draw pet name
-        name_text = f"{self.pet.name}"
+        # Draw pet name and age
+        name_text = f"Name: {self.pet.name}"
         name_surface = self.display.render_text(name_text, WHITE)
         name_x = (self.width - name_surface.get_width()) // 2
         name_y = 10
         self.display.screen.blit(name_surface, (name_x, name_y))
 
         # Draw pet age (smaller font)
-        age_text = f"{self.pet.get_age()}"
+        age_text = f"Age: {self.pet.get_age()}"
         age_surface = self.display.render_text(age_text, WHITE, self.display.small_font)
         age_x = (self.width - age_surface.get_width()) // 2
         age_y = name_y + name_surface.get_height() + 2
@@ -68,10 +68,14 @@ class StatsScreen:
         stats = self.pet.get_stats()
 
         # Calculate positions
-        stat_bar_x = 25  # Left-aligned with some padding
+        stat_name_x = 10
+        stat_bar_x = 50  # Start bars further to the right
         stat_bar_y_start = 45
         stat_bar_spacing = 15
-        stat_name_x = 5
+
+        # Increase stat bar size
+        bar_width = 70  # Increased from default
+        bar_height = 12  # Slightly taller
 
         for i, (stat_name, stat_value) in enumerate(stats.items()):
             # Shorten "Happiness" if it doesn't fit
@@ -83,14 +87,13 @@ class StatsScreen:
             self.display.screen.blit(stat_surface, (stat_name_x, stat_y))
 
             # Draw stat bar with more visible segments
-            bar_y = stat_y
             self.display.draw_stat_bar(
                 stat_bar_x,
-                bar_y,
+                stat_y,
                 stat_value,
                 MAX_STAT,
-                STAT_BAR_SIZE[0],
-                STAT_BAR_SIZE[1]
+                bar_width,
+                bar_height
             )
 
         # Draw right arrow indicator
