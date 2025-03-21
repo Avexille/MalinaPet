@@ -23,11 +23,11 @@ class ConversationScreen:
         self.bubble_height = self.height // 2  # Half the screen height
 
         # Calculate positions
-        self.pet_pos = (self.width // 2 - PET_SIZE[0] // 2,
-                        self.height - PET_SIZE[1] - 10)
+        self.bubble_pos = (10, 10)  # Top left of screen
 
-        self.bubble_pos = (10,  # Left margin
-                           (self.height - self.bubble_height) // 2)  # Centered vertically
+        # Pet position above the down arrow
+        self.pet_pos = (self.width // 2 - PET_SIZE[0] // 2,
+                        self.height - PET_SIZE[1] - ARROW_SIZE[1] - 10)
 
         # Load down arrow
         self.down_arrow = self.load_down_arrow()
