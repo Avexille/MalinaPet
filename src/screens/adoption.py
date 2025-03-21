@@ -110,38 +110,54 @@ class AdoptionScreen:
     #             image = pygame.Surface((30, 30))
     #             image.fill(GRAY)
     #             self.pet_images[pet_type] = image
-                
+
     def update(self):
         """Update the adoption screen"""
-        # Handle joystick input for button selection
+        # Handle joystick input for button selection - direct mapping for 2x2 grid
         if self.input.is_pressed("up"):
-            self.selected_button_index = (self.selected_button_index - self.buttons_per_row) % len(self.buttons)
+            # If in bottom row, move up
+            if self.selected_button_index >= 2:
+                self.selected_button_index -= 2
         elif self.input.is_pressed("down"):
-            self.selected_button_index = (self.selected_button_index + self.buttons_per_row) % len(self.buttons)
+            # If in top row, move down
+            if self.selected_button_index < 2:
+                self.selected_button_index += 2
+            # If AI button is available and we're in bottom row, select it
+            elif self.ai_handler.is_available and len(self.buttons) > 4:
+                self.selected_button_index = 4
         elif self.input.is_pressed("left"):
-            self.selected_button_index = (self.selected_button_index - 1) % len(self.buttons)
+            # If in right column, move left
+            if self.selected_button_index % 2 == 1:
+                self.selected_button_index -= 1
+            # If on AI button, move to bottom-right button
+            elif self.selected_button_index >= 4:
+                self.selected_button_index = 3
         elif self.input.is_pressed("right"):
-            self.selected_button_index = (self.selected_button_index + 1) % len(self.buttons)
-            
+            # If in left column, move right
+            if self.selected_button_index % 2 == 0 and self.selected_button_index < len(self.buttons) - 1:
+                # Don't go right if we're on the right edge
+                if self.selected_button_index < 3 or (self.selected_button_index == 2 and len(self.buttons) > 4):
+                    self.selected_button_index += 1
+
         # Check for selection
         if self.input.is_pressed("press") or self.input.is_pressed("key1"):
             selected_button = self.buttons[self.selected_button_index]
             pet_type = selected_button["type"]
-            
+
             # Handle different pet types
             if pet_type == "random":
                 # Choose a random pet type
-                pet_type = PET_TYPES[pygame.time.get_ticks() % len(PET_TYPES)]
+                pet_type = self.offline_pet_types[pygame.time.get_ticks() % len(self.offline_pet_types)]
             elif pet_type == "ai":
                 # Generate a random pet with AI
                 pet_type = self.ai_handler.generate_random_pet()
-                
+
             # Create the pet
             name = self.ai_handler.generate_pet_name(pet_type)
             pet = Pet(pet_type, name, selected_button["ai"])
-            
+
             return (ScreenType.MAIN, pet)
-            
+
         return None
 
     def draw(self):
