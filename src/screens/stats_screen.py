@@ -30,18 +30,19 @@ class StatsScreen:
             arrow = pygame.Surface(ARROW_SIZE)
             arrow.fill(YELLOW)
             return arrow
-            
+
     def update(self):
         """Update the stats screen"""
         # Check if the pet is dead
         if not self.pet.is_alive():
             return (ScreenType.GAME_OVER, None)
-            
-        # Handle joystick input
-        if self.input.is_pressed("left") or self.input.is_pressed("key1"):
+
+        # Handle joystick input - now using RIGHT to return to main screen
+        if self.input.is_pressed("right") or self.input.is_pressed("key1"):
             # Return to main screen
+            print("Returning to main screen from stats")
             return (ScreenType.MAIN, None)
-            
+
         return None
         
     def draw(self):
@@ -106,13 +107,13 @@ class StatsScreen:
             arrow_x = 5
             arrow_y = self.height // 2 - ARROW_SIZE[1] // 2
             self.display.screen.blit(self.left_arrow, (arrow_x, arrow_y))
-            
-        # Draw instruction
-        instruction_text = "Press left to return"
-        instruction_surface = self.display.render_text(instruction_text, WHITE, self.display.small_font)
-        instruction_x = (self.width - instruction_surface.get_width()) // 2
-        instruction_y = self.height - instruction_surface.get_height() - 5
-        self.display.screen.blit(instruction_surface, (instruction_x, instruction_y))
+
+            # Draw instruction
+            instruction_text = "Press right to return"
+            instruction_surface = self.display.render_text(instruction_text, WHITE, self.display.small_font)
+            instruction_x = (self.width - instruction_surface.get_width()) // 2
+            instruction_y = self.height - instruction_surface.get_height() - 5
+            self.display.screen.blit(instruction_surface, (instruction_x, instruction_y))
         
         # Update the display
         self.display.update()

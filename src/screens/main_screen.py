@@ -31,17 +31,21 @@ class MainScreen:
         # Positions
         self.pet_pos = (self.width // 2 - PET_SIZE[0] // 2, self.height // 2)
 
-        # Layout positions for regular toolbar icons (spread across the top)
+        # Layout positions for regular toolbar icons with closer spacing
         self.icon_positions = []
 
-        # Calculate space between icons to spread across screen
-        screen_usable_width = self.width - 10  # 5px padding on each side
-        total_icon_width = self.regular_icons * ICON_SIZE[0]
-        icon_spacing = (screen_usable_width - total_icon_width) // (self.regular_icons - 1)
+        # Set fixed spacing between icons (smaller value for closer icons)
+        icon_spacing = 10  # Reduced spacing between icons
 
-        # Position the regular icons across the top
+        # Calculate total width needed for all icons
+        total_width = (self.regular_icons * ICON_SIZE[0]) + ((self.regular_icons - 1) * icon_spacing)
+
+        # Calculate starting X to center the icon group
+        start_x = (self.width - total_width) // 2
+
+        # Position the regular icons across the top with closer spacing
         for i in range(self.regular_icons):
-            x = 5 + i * (ICON_SIZE[0] + icon_spacing)
+            x = start_x + i * (ICON_SIZE[0] + icon_spacing)
             y = 5  # Top padding
             self.icon_positions.append((x, y))
 
@@ -144,41 +148,41 @@ class MainScreen:
         # Update conversation status and arrow visibility
         self.show_up_arrow = self.pet.needs_conversation
 
-        # Handle joystick input for navigation
+        # Handle screen transitions with directional joystick
         if self.input.is_pressed("left"):
-            # Check if we need to go to stats screen or navigate icons
-            if self.active_icon_index == 0:
-                # When on far left icon, pressing left again goes to stats
-                return (ScreenType.STATS, None)
-            else:
-                # Otherwise, move to previous icon
-                self.active_icon_index = (self.active_icon_index - 1) % self.regular_icons
+            # Go to stats screen
+            return (ScreenType.STATS, None)
 
-        elif self.input.is_pressed("right"):
-            # Move to next icon
+        elif self.input.is_pressed("up") and self.pet.needs_conversation:
+            # Go to conversation screen if needed
+            print("Going to conversation screen")
+            return (ScreenType.CONVERSATION, None)
+
+        # Handle toolbar navigation with buttons instead of joystick
+        if self.input.is_pressed("key1"):
+            # Move selection to next icon
             self.active_icon_index = (self.active_icon_index + 1) % self.regular_icons
+            print(f"Toolbar selection: {self.active_icon_index}")
 
-        # Special handling for conversation
-        elif self.input.is_pressed("up"):
-            # Only go to conversation if the pet needs it
-            if self.pet.needs_conversation:
-                print("Going to conversation screen")  # Debug print
-                return (ScreenType.CONVERSATION, None)
-
-        # Handle icon activation
-        if self.input.is_pressed("press") or self.input.is_pressed("key1"):
+        # Handle icon activation with Key2
+        if self.input.is_pressed("key2"):
             # Activate the current icon
             if self.active_icon_index == 0:  # Eat
                 self.pet.eat()
+                print("Action: Feed pet")
             elif self.active_icon_index == 1:  # Sleep
                 if self.pet.state == STATE_SLEEPING:
                     self.pet.wake()
+                    print("Action: Wake pet")
                 else:
                     self.pet.sleep()
+                    print("Action: Pet sleeps")
             elif self.active_icon_index == 2:  # Clean
                 self.pet.clean()
+                print("Action: Clean messes")
             elif self.active_icon_index == 3:  # Heal
                 self.pet.heal()
+                print("Action: Heal pet")
 
         return None
 

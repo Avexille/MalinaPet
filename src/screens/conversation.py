@@ -52,21 +52,22 @@ class ConversationScreen:
             arrow = pygame.Surface(ARROW_SIZE)
             arrow.fill(YELLOW)
             return arrow
-            
+
     def update(self):
         """Update the conversation screen"""
         # Check if pet is playing
         self.pet.play()
-        
-        # Handle joystick input
-        if self.input.is_pressed("up") or self.input.is_pressed("key1"):
+
+        # Handle joystick input - now using DOWN to return to main screen
+        if self.input.is_pressed("down") or self.input.is_pressed("key1"):
             # Return to main screen
+            print("Returning to main screen from conversation")
             return (ScreenType.MAIN, None)
-            
+
         # Check if conversation should time out
         if time.time() - self.start_time > 10:  # 10 seconds timeout
             return (ScreenType.MAIN, None)
-            
+
         return None
         
     def draw(self):
@@ -109,13 +110,13 @@ class ConversationScreen:
             arrow_x = self.width // 2 - ARROW_SIZE[0] // 2
             arrow_y = 5  # Top of screen
             self.display.screen.blit(self.up_arrow, (arrow_x, arrow_y))
-            
-        # Draw instruction
-        instruction_text = "Press up to return"
-        instruction_surface = self.display.render_text(instruction_text, WHITE, self.display.small_font)
-        instruction_x = (self.width - instruction_surface.get_width()) // 2
-        instruction_y = self.bubble_pos[1] - instruction_surface.get_height() - 5
-        self.display.screen.blit(instruction_surface, (instruction_x, instruction_y))
+
+            # Draw instruction
+            instruction_text = "Press down to return"
+            instruction_surface = self.display.render_text(instruction_text, WHITE, self.display.small_font)
+            instruction_x = (self.width - instruction_surface.get_width()) // 2
+            instruction_y = self.bubble_pos[1] - instruction_surface.get_height() - 5
+            self.display.screen.blit(instruction_surface, (instruction_x, instruction_y))
         
         # Update the display
         self.display.update()
