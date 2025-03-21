@@ -18,16 +18,16 @@ class ConversationScreen:
         self.width = self.display.width
         self.height = self.display.height
 
-        # Speech bubble dimensions (increased size)
+        # Speech bubble dimensions
         self.bubble_width = self.width - 20  # Wider bubble with margins
-        self.bubble_height = 40  # Taller bubble
+        self.bubble_height = self.height // 2  # Half the screen height
 
         # Calculate positions
         self.pet_pos = (self.width // 2 - PET_SIZE[0] // 2,
-                        self.height - PET_SIZE[1] - 25)  # Slightly higher to make room for bubble and arrow
+                        self.height - PET_SIZE[1] - 10)
 
         self.bubble_pos = (10,  # Left margin
-                           self.pet_pos[1] - self.bubble_height - 10)  # Above pet with some padding
+                           (self.height - self.bubble_height) // 2)  # Centered vertically
 
         # Load down arrow
         self.down_arrow = self.load_down_arrow()
@@ -75,9 +75,6 @@ class ConversationScreen:
         # Clear the screen
         self.display.clear()
 
-        # Draw pet
-        self.pet.draw(self.display.screen, self.pet_pos[0], self.pet_pos[1])
-
         # Draw speech bubble
         pygame.draw.rect(
             self.display.screen,
@@ -104,18 +101,14 @@ class ConversationScreen:
         # Blit text to screen
         self.display.screen.blit(text_surface, (text_x, text_y))
 
+        # Draw pet
+        self.pet.draw(self.display.screen, self.pet_pos[0], self.pet_pos[1])
+
         # Draw down arrow indicator at the bottom of the screen
         if self.down_arrow:
             arrow_x = self.width // 2 - ARROW_SIZE[0] // 2
             arrow_y = self.height - ARROW_SIZE[1] - 5  # 5px from bottom
             self.display.screen.blit(self.down_arrow, (arrow_x, arrow_y))
-
-        # Draw instruction
-        instruction_text = "Press down to return"
-        instruction_surface = self.display.render_text(instruction_text, WHITE, self.display.small_font)
-        instruction_x = (self.width - instruction_surface.get_width()) // 2
-        instruction_y = arrow_y - instruction_surface.get_height() - 2
-        self.display.screen.blit(instruction_surface, (instruction_x, instruction_y))
 
         # Update the display
         self.display.update()
