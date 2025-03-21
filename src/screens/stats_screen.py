@@ -83,11 +83,16 @@ class StatsScreen:
             for label in stat_labels
         )
 
-        # Calculate starting positions
+        # Calculate total height of stats area
+        stat_bar_spacing = 20  # Increased spacing between stats
+        total_stats_height = len(stats) * bar_height + (len(stats) - 1) * stat_bar_spacing
+
+        # Calculate starting vertical position to center stats
+        stat_bar_y_start = (self.height - total_stats_height) // 2
+
+        # Calculate starting horizontal positions
         stat_name_x = (self.width - (max_label_width + 10 + bar_width)) // 2
         stat_bar_x = stat_name_x + max_label_width + 10
-        stat_bar_y_start = 45
-        stat_bar_spacing = 15
 
         for i, (stat_name, stat_value) in enumerate(stats.items()):
             # Shorten "Happiness" if it doesn't fit
@@ -95,7 +100,7 @@ class StatsScreen:
 
             # Draw stat name
             stat_surface = self.display.render_text(f"{display_name}:", WHITE, self.display.small_font)
-            stat_y = stat_bar_y_start + i * stat_bar_spacing
+            stat_y = stat_bar_y_start + i * (bar_height + stat_bar_spacing)
             self.display.screen.blit(stat_surface, (stat_name_x, stat_y))
 
             # Draw stat bar with more visible segments
@@ -122,4 +127,4 @@ class StatsScreen:
         self.display.screen.blit(instruction_surface, (instruction_x, instruction_y))
 
         # Update the display
-        self.display.update()
+        self.display.update()  # !/usr/bin/env python3
