@@ -14,12 +14,10 @@ class AIHandler:
         self.is_available = False
         self.last_check_time = 0
         self.check_interval = 60  # Check internet connection every 60 seconds
-        
+
         # Predefined offline responses
         self.offline_facts = [
-            "Did you know that cats sleep for about 70% of their lives?",
             "The world's oldest known pet was a tortoise that lived to be 188 years old!",
-            "Hamsters' teeth never stop growing throughout their lives.",
             "Rabbits can't vomit.",
             "Parrots can live up to 80 years!",
             "Dogs' nose prints are as unique as human fingerprints.",
@@ -29,9 +27,6 @@ class AIHandler:
             "Goldfish have a memory span of up to 3 months, not just a few seconds.",
             "Snakes don't have eyelids, so they sleep with their eyes open.",
             "A frog's tongue can be up to a third of the length of its body.",
-            "Some birds can recognize themselves in mirrors!",
-            "A turtle's shell is actually part of its skeleton.",
-            "Rats laugh when they're tickled!"
         ]
         self.offline_jokes = [
             "Why don't cats play poker in the jungle? Too many cheetahs!",
@@ -43,14 +38,12 @@ class AIHandler:
             "How do you make an octopus laugh? With ten-tickles!",
             "What do you call a sleeping bull? A bulldozer!",
             "What do you get when you cross a snake and a pie? A pie-thon!",
-            "Why couldn't the pony sing? Because she was a little hoarse!",
-            "What's a frog's favorite game? Leapfrog!",
-            "Why don't snakes have friends? They're too cold-blooded!",
             "How do you count cows? With a cow-culator!",
-            "What happened when the dog went to the flea circus? He stole the show!",
-            "Why do fish live in salt water? Because pepper makes them sneeze!"
         ]
-        
+
+        # AI-generated pet types that we've successfully created
+        self.ai_pet_types = []
+
         # Try to initialize OpenAI API
         self.initialize()
         
@@ -65,17 +58,17 @@ class AIHandler:
                 self.is_available = False
         else:
             self.is_available = False
-            
+
     def _check_connection(self):
         """Check if the internet and API connection is available"""
         current_time = time.time()
-        
+
         # Only check connection every check_interval seconds
         if current_time - self.last_check_time < self.check_interval:
             return self.is_available
-            
+
         self.last_check_time = current_time
-        
+
         try:
             # Try a simple API request to check connection
             response = openai.ChatCompletion.create(
@@ -86,8 +79,10 @@ class AIHandler:
                 ],
                 max_tokens=10
             )
+            print("API connection successful")
             return True
-        except:
+        except Exception as e:
+            print(f"API connection failed: {e}")
             return False
             
     def generate_pet_name(self, pet_type):
@@ -142,9 +137,58 @@ class AIHandler:
             return random.choice(self.offline_facts)
         else:
             return random.choice(self.offline_jokes)
-            
+
     def generate_random_pet(self):
         """Generate a random pet type using AI or fallback to predefined pets"""
-        # For now, just return a random pet from the predefined list
-        # since generating images is beyond the scope of text-based AI
+        if self.is_available and self._check_connection():
+            try:
+                # First generate a random pet type
+                pet_ideas = ["Cat", "Dog", "Bird", "Dragon", "Fox", "Rabbit", "Frog", "Panda",
+                             "Turtle", "Octopus", "Axolotl", "Owl", "Hamster", "Dinosaur"]
+                pet_type = random.choice(pet_ideas)
+
+                # Then generate an image with DALL-E
+                print(f"Generating image for AI pet type: {pet_type}")
+
+                # Create DALL-E prompt for a pixel art style pet
+                prompt = f"A cute pixel art {pet_type} for a tamagotchi style game. Simple 8-bit or 16-bit style, black background, top-down view, simple design, small size appropriate for a tiny LCD screen."
+
+                try:
+                    # Call DALL-E API
+                    response = openai.Image.create(
+                        prompt=prompt,
+                        n=1,  # Generate 1 image
+                        size="256x256",  # Small size for pixel art
+                        response_format="url"  # Get URL to download
+                    )
+
+                    # Get image URL
+                    image_url = response['data'][0]['url']
+
+                    # Download the image
+                    import requests
+                    from PIL import Image
+                    from io import BytesIO
+
+                    # Download the image
+                    image_response = requests.get(image_url)
+                    image = Image.open(BytesIO(image_response.content))
+
+                    # Resize to match pet size
+                    image = image.resize((PET_SIZE[0], PET_SIZE[1]))
+
+                    # Save the image
+                    os.makedirs(PETS_PATH, exist_ok=True)
+                    image_path = os.path.join(PETS_PATH, f"{pet_type}Tami.png")
+                    image.save(image_path)
+
+                    print(f"Successfully created AI pet: {pet_type}")
+                    return pet_type
+                except Exception as e:
+                    print(f"Error generating pet image with DALL-E: {e}")
+            except Exception as e:
+                print(f"Error in AI pet generation: {e}")
+                self.is_available = False
+
+        # Fallback to predefined pets if AI generation fails
         return random.choice(PET_TYPES)
