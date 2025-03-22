@@ -141,19 +141,23 @@ class AIHandler:
                 # Create a client instance
                 client = OpenAI(api_key=self.api_key)
 
-                prompt = f"You are {pet_name}, a virtual {pet_type} pet. Share one cute, interesting, and short fun fact or joke. Keep it under 100 characters if possible. Make it fun for kids. Just provide the fun fact or joke, nothing else."
+                prompt = f"You are {pet_name}, a virtual {pet_type} pet. Share one cute, interesting, and short fun fact or joke. Keep it under 100 characters if possible. Make it fun for kids. Only use basic ASCII characters - no emojis or special Unicode characters. Just provide the fun fact or joke, nothing else."
 
                 response = client.chat.completions.create(
                     model=DEFAULT_AI_MODEL,
                     messages=[
                         {"role": "system",
-                         "content": "You are a cute virtual pet that shares interesting facts or jokes with your owner."},
+                         "content": "You are a cute virtual pet that shares interesting facts or jokes with your owner. Only use basic ASCII characters - no emojis or special symbols."},
                         {"role": "user", "content": prompt}
                     ],
                     max_tokens=150
                 )
 
                 fact = response.choices[0].message.content.strip()
+
+                # Filter out any non-ASCII characters to prevent Unicode errors
+                fact = ''.join(char for char in fact if ord(char) < 128)
+
                 return fact
             except Exception as e:
                 print(f"Error generating fun fact: {e}")
@@ -177,9 +181,8 @@ class AIHandler:
                 # Then generate an image with DALL-E
                 print(f"Generating image for AI pet type: {pet_type}")
 
-                # Create DALL-E prompt for a pixel art style pet
-                prompt = f"A cute pixel art {pet_type} for a tamagotchi style game. Simple 8-bit or 16-bit style, transparent background, top-down view, simple design, small size appropriate for a tiny LCD screen."
-
+                # DALL-E prompt for a pixel art style pet
+                prompt = f"A cute pixel art {pet_type} for a tamagotchi style game. Simple 8-bit or 16-bit style with solid black background. The pet should be centered and take up most of the image. No borders, frames, or pendants. Plain isolated pet sprite on pure black (#000000) background."
                 try:
                     # Import the OpenAI client
                     from openai import OpenAI
@@ -200,21 +203,26 @@ class AIHandler:
                     image_url = response.data[0].url
 
                     # Download the image
-                    import requests
-                    from PIL import Image
-                    from io import BytesIO
-
-                    # Download the image
                     image_response = requests.get(image_url)
                     image = Image.open(BytesIO(image_response.content))
 
+                    # Create a new image with black background
+                    black_bg = Image.new("RGBA", image.size, (0, 0, 0, 255))
+
+                    # Paste the downloaded image onto the black background
+                    # This ensures any transparent or checkered areas will be black
+                    if image.mode == 'RGBA':
+                        black_bg.paste(image, (0, 0), image)
+                    else:
+                        black_bg.paste(image, (0, 0))
+
                     # Resize to match pet size
-                    image = image.resize((PET_SIZE[0], PET_SIZE[1]))
+                    black_bg = black_bg.resize((PET_SIZE[0], PET_SIZE[1]))
 
                     # Save the image
                     os.makedirs(PETS_PATH, exist_ok=True)
                     image_path = os.path.join(PETS_PATH, f"{pet_type}Tami.png")
-                    image.save(image_path)
+                    black_bg.save(image_path)
 
                     print(f"Successfully created AI pet: {pet_type}")
                     return pet_type
