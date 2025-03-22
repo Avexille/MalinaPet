@@ -46,17 +46,20 @@ class AIHandler:
 
         # Try to initialize OpenAI API
         self.initialize()
-        
+
     def initialize(self):
         """Initialize the OpenAI API with the provided key"""
         if self.api_key:
             try:
-                openai.api_key = self.api_key
-                # Check if we can connect to the API
+                # We'll initialize the client when needed
+                # in each API call rather than setting a global
+                print("API key found, will test connection")
                 self.is_available = self._check_connection()
-            except:
+            except Exception as e:
+                print(f"Failed to initialize API: {e}")
                 self.is_available = False
         else:
+            print("No API key provided, AI features disabled")
             self.is_available = False
 
     def _check_connection(self):
@@ -70,8 +73,14 @@ class AIHandler:
         self.last_check_time = current_time
 
         try:
-            # Try a simple API request to check connection
-            response = openai.ChatCompletion.create(
+            # Try a simple API request to check connection with new API
+            from openai import OpenAI
+
+            # Create a client instance
+            client = OpenAI(api_key=self.api_key)
+
+            # Test connection with a simple request
+            response = client.chat.completions.create(
                 model=DEFAULT_AI_MODEL,
                 messages=[
                     {"role": "system", "content": "Just respond with 'OK' to test the connection."},
@@ -84,54 +93,72 @@ class AIHandler:
         except Exception as e:
             print(f"API connection failed: {e}")
             return False
-            
+
     def generate_pet_name(self, pet_type):
         """Generate a pet name using AI or fallback to predefined names"""
-        if self.is_available:
+        if self.is_available and self._check_connection():
             try:
-                response = openai.ChatCompletion.create(
+                # Import client here to avoid issues if not installed
+                from openai import OpenAI
+
+                # Create a client instance
+                client = OpenAI(api_key=self.api_key)
+
+                # Generate name with the new API
+                response = client.chat.completions.create(
                     model=DEFAULT_AI_MODEL,
                     messages=[
-                        {"role": "system", "content": "You are a cute pet name generator. Generate a single short, cute name for a virtual pet. Just provide the name, nothing else."},
+                        {"role": "system",
+                         "content": "You are a cute pet name generator. Generate a single short, cute name for a virtual pet. Just provide the name, nothing else."},
                         {"role": "user", "content": f"Generate a cute name for a {pet_type} virtual pet."}
                     ],
                     max_tokens=20
                 )
+
+                # Extract name from response (structure is different in API v1)
                 name = response.choices[0].message.content.strip()
+
                 # Ensure the name is not too long
                 if len(name) > 10:
                     name = name[:10]
                 return name
-            except:
+            except Exception as e:
+                print(f"Error generating pet name: {e}")
                 self.is_available = False
-                
+
         # Fallback to predefined names
         prefixes = ["Pixel", "Bit", "Chip", "Nano", "Tiny", "Byte", "Spark", "Glitch", "Blip", "Dot"]
-        suffixes = ["Bot", "Pepa", "Friend", "Pal", "Buddy", "Mate", "Chum", "Companion", "Amigo", "Comrade"]
-        
+        suffixes = ["Bot", "Pet", "Friend", "Pal", "Buddy", "Mate", "Chum", "Companion", "Amigo", "Comrade"]
+
         return f"{random.choice(prefixes)}{random.choice(suffixes)}"
-        
+
     def generate_fun_fact(self, pet_type, pet_name):
         """Generate a fun fact or joke from the pet using AI or fallback to predefined facts"""
         if self.is_available and self._check_connection():
             try:
+                from openai import OpenAI
+
+                # Create a client instance
+                client = OpenAI(api_key=self.api_key)
+
                 prompt = f"You are {pet_name}, a virtual {pet_type} pet. Share one cute, interesting, and short fun fact or joke. Keep it under 100 characters if possible. Make it fun for kids. Just provide the fun fact or joke, nothing else."
-                
-                response = openai.ChatCompletion.create(
+
+                response = client.chat.completions.create(
                     model=DEFAULT_AI_MODEL,
                     messages=[
-                        {"role": "system", "content": "You are a cute virtual pet that shares interesting facts or jokes with your owner."},
+                        {"role": "system",
+                         "content": "You are a cute virtual pet that shares interesting facts or jokes with your owner."},
                         {"role": "user", "content": prompt}
                     ],
                     max_tokens=150
                 )
-                
+
                 fact = response.choices[0].message.content.strip()
                 return fact
             except Exception as e:
                 print(f"Error generating fun fact: {e}")
                 self.is_available = False
-                
+
         # Fallback to predefined facts/jokes
         if random.random() < 0.7:  # 70% chance of fact, 30% chance of joke
             return random.choice(self.offline_facts)
@@ -151,19 +178,26 @@ class AIHandler:
                 print(f"Generating image for AI pet type: {pet_type}")
 
                 # Create DALL-E prompt for a pixel art style pet
-                prompt = f"A cute pixel art {pet_type} for a tamagotchi style game. Simple 8-bit or 16-bit style, black background, top-down view, simple design, small size appropriate for a tiny LCD screen."
+                prompt = f"A cute pixel art {pet_type} for a tamagotchi style game. Simple 8-bit or 16-bit style, transparent background, top-down view, simple design, small size appropriate for a tiny LCD screen."
 
                 try:
-                    # Call DALL-E API
-                    response = openai.Image.create(
+                    # Import the OpenAI client
+                    from openai import OpenAI
+
+                    # Create a client instance
+                    client = OpenAI(api_key=self.api_key)
+
+                    # Call DALL-E API with new client
+                    response = client.images.generate(
+                        model="dall-e-3",  # Use DALL-E 3
                         prompt=prompt,
                         n=1,  # Generate 1 image
-                        size="256x256",  # Small size for pixel art
+                        size="1024x1024",  # Standard size
                         response_format="url"  # Get URL to download
                     )
 
-                    # Get image URL
-                    image_url = response['data'][0]['url']
+                    # Get image URL from the updated response structure
+                    image_url = response.data[0].url
 
                     # Download the image
                     import requests
