@@ -107,7 +107,7 @@ class AIHandler:
                 
         # Fallback to predefined names
         prefixes = ["Pixel", "Bit", "Chip", "Nano", "Tiny", "Byte", "Spark", "Glitch", "Blip", "Dot"]
-        suffixes = ["Bot", "Pet", "Friend", "Pal", "Buddy", "Mate", "Chum", "Companion", "Amigo", "Comrade"]
+        suffixes = ["Bot", "Pepa", "Friend", "Pal", "Buddy", "Mate", "Chum", "Companion", "Amigo", "Comrade"]
         
         return f"{random.choice(prefixes)}{random.choice(suffixes)}"
         

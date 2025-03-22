@@ -119,12 +119,5 @@ class StatsScreen:
             arrow_y = self.height // 2 - ARROW_SIZE[1] // 2
             self.display.screen.blit(self.right_arrow, (arrow_x, arrow_y))
 
-        # Draw instruction
-        # instruction_text = "Press right to return"
-        # instruction_surface = self.display.render_text(instruction_text, WHITE, self.display.small_font)
-        # instruction_x = (self.width - instruction_surface.get_width()) // 2
-        # instruction_y = self.height - instruction_surface.get_height() - 5
-        # self.display.screen.blit(instruction_surface, (instruction_x, instruction_y))
-
         # Update the display
         self.display.update()  # !/usr/bin/env python3
