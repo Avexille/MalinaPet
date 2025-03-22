@@ -192,9 +192,21 @@ class AIHandler:
                 # Then generate an image with DALL-E
                 print(f"Generating image for AI pet type: {pet_type}")
 
-                # Create DALL-E prompt for a pixel art style pet on black background
-                prompt = f"A cute pixel art {pet_type} for a tamagotchi style game. Simple 8-bit or 16-bit style with solid black background. The pet should be centered and take up most of the image. No borders, frames, or pendants. Plain isolated pet sprite on pure black (#000000) background."
+                # DALL-E prompt for a simple standalone pixel art pet
+                prompt = f"""Generate a single small pixel art {pet_type} character for a virtual pet game.
 
+                                IMPORTANT REQUIREMENTS:
+                                - ONE standalone animal only, no duplicates, no accessories
+                                - No phones, frames, borders, or backgrounds
+                                - Simple 8-bit pixel art style like old Nintendo games
+                                - Just the {pet_type} itself, centered in the image
+                                - Solid black background
+                                - Animal should face forward, looking at viewer
+                                - Simple, cute design with minimal detail
+                                - Similar to Tamagotchi pixel sprites
+                                - NO TEXT, NO LABELS, NO OTHER OBJECTS
+
+                                The final image should look like a plain pixel art {pet_type} sprite ready to be used in a game."""
                 try:
                     # Import the OpenAI client
                     from openai import OpenAI
