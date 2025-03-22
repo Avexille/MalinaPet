@@ -3,6 +3,7 @@
 
 import os
 import json
+import time
 
 class Config:
     def __init__(self):
@@ -10,7 +11,6 @@ class Config:
         self.default_config = {
             "openai_api_key": "",
             "first_run": True,
-            "sound_enabled": True,
             "last_pet_type": None,
             "last_pet_name": None
         }
