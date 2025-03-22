@@ -46,7 +46,6 @@ class AIHandler:
             "What do you call a dog magician? A labracadabrador!",
             "Why was the cat sitting on the computer? To keep an eye on the mouse!",
             "What do you call a rabbit with fleas? Bugs Bunny!",
-            "How do you make an octopus laugh? With ten-tickles!",
             "What do you call a sleeping bull? A bulldozer!",
             "What do you get when you cross a snake and a pie? A pie-thon!",
             "How do you count cows? With a cow-culator!",
