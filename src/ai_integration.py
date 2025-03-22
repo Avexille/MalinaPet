@@ -192,17 +192,8 @@ class AIHandler:
                 print(f"Generating image for AI pet type: {pet_type}")
 
                 # DALL-E prompt for a simple standalone pixel art pet
-                prompt = f"""Generate a single small pixel art {pet_type} character.
+                prompt = f"""Generate a single small simple pixel art {pet_type} character with black background. Animal should face forward, looking at player. Only the animal should be present on the picture, nothing else, no background shading or other objects"""
 
-                                IMPORTANT REQUIREMENTS:
-                                - ONE standalone animal only, no duplicates, no accessories
-                                - Just the {pet_type} itself, centered in the image
-                                - Solid black background
-                                - Animal should face forward, looking at viewer
-                                - Simple, cute design with minimal detail
-                                - NO TEXT, NO LABELS, NO OTHER OBJECTS
-
-                                The final image should look like a plain pixel art {pet_type} pet."""
                 try:
                     # Import the OpenAI client
                     from openai import OpenAI
