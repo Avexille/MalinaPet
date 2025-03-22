@@ -15,6 +15,17 @@ class AIHandler:
         self.last_check_time = 0
         self.check_interval = 60  # Check internet connection every 60 seconds
 
+        # Import required modules for image generation
+        try:
+            import requests
+            from PIL import Image
+            self.requests = requests
+            self.Image = Image
+            self.image_libs_available = True
+        except ImportError:
+            print("Warning: requests and/or PIL libraries not available. Image generation will be disabled.")
+            self.image_libs_available = False
+
         # Predefined offline responses
         self.offline_facts = [
             "The world's oldest known pet was a tortoise that lived to be 188 years old!",
@@ -171,7 +182,7 @@ class AIHandler:
 
     def generate_random_pet(self):
         """Generate a random pet type using AI or fallback to predefined pets"""
-        if self.is_available and self._check_connection():
+        if self.is_available and self._check_connection() and self.image_libs_available:
             try:
                 # First generate a random pet type
                 pet_ideas = ["Cat", "Dog", "Bird", "Dragon", "Fox", "Rabbit", "Frog", "Panda",
@@ -181,8 +192,9 @@ class AIHandler:
                 # Then generate an image with DALL-E
                 print(f"Generating image for AI pet type: {pet_type}")
 
-                # DALL-E prompt for a pixel art style pet
+                # Create DALL-E prompt for a pixel art style pet on black background
                 prompt = f"A cute pixel art {pet_type} for a tamagotchi style game. Simple 8-bit or 16-bit style with solid black background. The pet should be centered and take up most of the image. No borders, frames, or pendants. Plain isolated pet sprite on pure black (#000000) background."
+
                 try:
                     # Import the OpenAI client
                     from openai import OpenAI
@@ -202,12 +214,15 @@ class AIHandler:
                     # Get image URL from the updated response structure
                     image_url = response.data[0].url
 
+                    # Use the properly imported requests and PIL libraries
+                    from io import BytesIO
+
                     # Download the image
-                    image_response = requests.get(image_url)
-                    image = Image.open(BytesIO(image_response.content))
+                    image_response = self.requests.get(image_url)
+                    image = self.Image.open(BytesIO(image_response.content))
 
                     # Create a new image with black background
-                    black_bg = Image.new("RGBA", image.size, (0, 0, 0, 255))
+                    black_bg = self.Image.new("RGBA", image.size, (0, 0, 0, 255))
 
                     # Paste the downloaded image onto the black background
                     # This ensures any transparent or checkered areas will be black
