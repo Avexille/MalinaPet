@@ -197,15 +197,13 @@ class AIHandler:
                                 IMPORTANT REQUIREMENTS:
                                 - ONE standalone animal only, no duplicates, no accessories
                                 - No phones, frames, borders, or backgrounds
-                                - Simple 8-bit pixel art style like old Nintendo games
                                 - Just the {pet_type} itself, centered in the image
                                 - Solid black background
                                 - Animal should face forward, looking at viewer
                                 - Simple, cute design with minimal detail
-                                - Similar to Tamagotchi pixel sprites
                                 - NO TEXT, NO LABELS, NO OTHER OBJECTS
 
-                                The final image should look like a plain pixel art {pet_type} sprite ready to be used in a game."""
+                                The final image should look like a plain pixel art {pet_type} pet ready to be used in a game."""
                 try:
                     # Import the OpenAI client
                     from openai import OpenAI
