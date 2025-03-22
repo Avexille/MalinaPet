@@ -89,7 +89,7 @@ class Display:
         # Initialize fonts
         try:
             # Try to load a pixel-style font for 8-bit/16-bit look
-            font_path = os.path.join(FONTS_PATH, "pixeloid.ttf")
+            font_path = os.path.join(FONTS_PATH, "Qadang.ttf")
             if os.path.exists(font_path):
                 self.font = pygame.font.Font(font_path, max(10, self.height // 12))
                 self.small_font = pygame.font.Font(font_path, max(8, self.height // 16))
